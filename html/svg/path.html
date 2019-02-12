@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>常用路径</title>
+</head>
+<body>
+<svg>
+</svg>
+<!--<script src="https://d3js.org/d3.v4.min.js"></script>-->
+<script src="../../js/d3.v4.js"></script>
+<script>
+    var svg = d3.select("svg");
+    // 直线
+    var path1 = svg.append("g")
+        .attr("transform", "translate(20, 20)");
+    path1.append("text")
+        .html("直线");
+
+    path1.append("path")
+        .attr("d", path(1))
+        .style("fill", "none")
+        .style("stroke", "red");
+
+    // 折线
+    var path2 = svg.append("g")
+        .attr("transform", "translate(70, 20)");
+    path2.append("text")
+        .html("折线");
+
+    path2.append("path")
+        .attr("d", path(2))
+        .style("fill", "none")
+        .style("stroke", "red");
+
+    // 对角线
+    var path3 = svg.append("g")
+        .attr("transform", "translate(130, 20)");
+    path3.append("text")
+        .html("对角线");
+
+    path3.append("path")
+        .attr("d", path(3))
+        .style("fill", "none")
+        .style("stroke", "red");
+
+    // 弧线
+    var path4 = svg.append("g")
+        .attr("transform", "translate(190, 20)");
+    path4.append("text")
+        .html("弧线");
+
+    path4.append("path")
+        .attr("d", path(4))
+        .style("fill", "none")
+        .style("stroke", "red");
+
+    // 路径生成器
+    function path(num) {
+        var x1 = 00, y1 = 10,   // 起点坐标
+            x2 = 40, y2 = 100;  // 终点坐标
+
+        var path = "";
+
+        if (num == 1) {    // 直线
+            return "M " + x1 +","+ y1 +
+                " L " + x2 +","+ y2;
+        }
+
+        if (num == 2) {    // 折线
+            return "M " + x1 +","+ y1 +
+                " L " + x1 +","+ (y1 + y2) / 2 +
+                " L " + x2 +","+ (y1 + y2) / 2 +
+                " L " + x2 +","+ y2;
+        }
+
+        if (num == 3) { //对角线
+            var r = y2 - y1;
+            return "M " + x1 +","+ y1 +
+                " C " + x1 +","+ (y1 + r / 2) + " " +
+                x2 +","+ (y1 + r / 2) + " " +
+                x2 +","+ y2;
+        }
+
+        if (num == 4) { // 弧线
+            var dx = x2 - x1,
+                dy = y2 - y1,
+                dr = Math.sqrt(dx * dx + dy * dy);
+
+            return "M " + x1 +","+ y1 +
+                " A " + dr +","+ dr + ",0,0,1 " +
+                x2 +","+ y2;
+        }
+    }
+</script>
+</body>
+</html>

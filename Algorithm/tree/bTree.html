@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>B树</title>
+</head>
+<body>
+<script src="btree.js"></script>
+<script>
+    var t = new bTree();
+    var n = [3, 8, 31, 11, 23, 29, 50, 28];
+    for (var i = 0; i < 8; ++i) {
+        t.push(n[i]);
+    }
+    var c = t.query();
+    console.log(c);
+    console.log(t.root());
+</script>
+</body>
+</html>

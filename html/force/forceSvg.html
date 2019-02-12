@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>力布局(SVG)</title>
+</head>
+<body>
+<svg id="chart" width="960" height="960"></svg>
+<script src="json.js"></script>
+<script src="../../js/d3.v4.js"></script>
+<script>
+let nodes = json.nodes,
+    links = json.links;
+console.log(nodes);
+console.log(links);
+
+let svg = d3.select("#chart"),
+    g = svg.append("g").classed("group", true);
+
+// 力布局
+let simulation = d3.forceSimulation();
+
+force();
+
+
+
+function force() {
+    // 弹力
+    let link = d3.forceLink().links(links).id(d => d.name);
+
+    simulation
+        .nodes(nodes) // 设置力模拟的节点
+       // .force("")
+        .force("link", link); // 弹力
+
+    simulation.stop();
+    for (var i = 0; i < 10; ++i) {
+        simulation.tick(2);
+        console.log(simulation.alpha());
+    }
+
+
+    simulation
+        .on("tick", () => {
+            //console.log("tick");
+        })
+        .on("end", () => {
+            console.log("end");
+            draw();
+
+            g.attr("transform", "translate("+ (960 / 2 - nodes[0].x) + "," + (960 / 2 - nodes[0].y) +")");
+        });
+}
+function draw() {
+    drawLink(links);
+    drawNode(nodes);
+    tick();
+}
+// 绘制连线
+function drawLink(links) {
+    let link = g.selectAll(".link").data(links);
+
+    // 添加连线
+    let linkEnter = link.enter().append("g")
+        .classed("link", true);
+    // 绘制路径
+    linkEnter.append("path")    // 添加 <path>标签
+        .attr("d", d => getPath(d)) // 设置路径
+        .style("fill", "none")  // 设置无填充颜色
+        .style("stroke", "red") // 设置边框颜色
+        .style("stroke-width", 3);  // 设置边框宽度
+
+    // 更新连线
+    link.each();
+
+    // 删除连线
+    link.exit().remove();
+}
+// 绘制节点
+function drawNode(nodes) {
+    let node = g.selectAll(".node").data(nodes);
+
+    // 添加节点
+    let nodeEnter = node.enter().append("g")
+        .classed("node", true);
+    //绘制图标
+    nodeEnter.append("circle")  // 添加 <circle>标签
+        .attr("r", 6)   // 设置半径
+        .style("fill", "blue")  // 设置填充颜色
+        .style("cursor", "pointer") // 设置鼠标悬浮样式
+        .on("click", d => { // 设置单击事件
+            console.log(d);
+        });
+    // 绘制文字
+    nodeEnter.append("text") // 添加 <text> 标签
+        .attr("dx", "8")    // 设置向左偏移度
+        .attr("dy", ".3em") // 设置向下偏移度
+        .text(d => d.name); // 设置文本内容
+
+    // 跟新节点
+    node.each(d => {
+       console.log("node: %d", d);
+    });
+
+    // 删除节点
+    node.exit().remove();
+}
+function getPath(d) {
+    var x1 = d.source.x, y1 = d.source.y,   // 起点坐标
+        x2 = d.target.x, y2 = d.target.y;  // 终点坐标
+
+    return "M " + x1 +","+ y1 +
+        " L " + x2 +","+ y2;
+}
+// 位置更新
+function tick() {
+    let link = g.selectAll("g.link");
+    link.select("path")
+        .attr("d", d => getPath(d));
+
+    // 节点位置更新
+    let node = g.selectAll("g.node");
+    node.select("circle")
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y);
+    node.select("text")
+        .attr("x", d => d.x)
+        .attr("y", d => d.y);
+}
+</script>
+</body>
+</html>
