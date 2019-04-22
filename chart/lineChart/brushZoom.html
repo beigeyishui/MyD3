@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>折线图</title>
+</head>
+<body>
+<div id="chart"></div>
+<script src="../../resource/js/d3.v5.js"></script>
+<script>
+    let data = [
+        {"name": "a", "x": 0, "y": 0},
+        {"name": "b", "x": 20, "y": 100},
+        {"name": "c", "x": 40, "y": 0},
+        {"name": "d", "x": 60, "y": 100},
+        {"name": "d", "x": 80, "y": 0},
+        {"name": "d", "x": 100, "y": 100}
+    ];
+
+
+    const width = window.innerWidth,
+          height = window.innerHeight;
+
+    const chart_width = width - 200,
+          chart_height = 300,
+          chart2_width = width - 200,
+          chart2_height = 50;
+
+    let axis_xScale = d3.scaleLinear().domain([0, 100]).range([0, chart_width]),
+        axis_yScale = d3.scaleLinear().domain([0, 100]).range([chart_height, 0]),
+        axis_xAxis = d3.axisBottom(axis_xScale).ticks(5),
+        axis_yAxis = d3.axisLeft(axis_yScale).ticks(5),
+        axis_line = d3.line()
+            .x(d => axis_xScale(d.x))
+            .y(d => axis_yScale(d.y))
+            .curve(d3.curveMonotoneX);
+
+    let axis2_xScale = d3.scaleLinear().domain([0, 100]).range([0, chart2_width]),
+        axis2_yScale = d3.scaleLinear().domain([0, 100]).range([chart2_height, 0]),
+        axis2_xAxis = d3.axisBottom(axis2_xScale).ticks(5),
+        axis2_yAxis = d3.axisLeft(axis2_yScale).ticks(5),
+        axis2_line = d3.line()
+            .x(d => axis2_xScale(d.x))
+            .y(d => axis2_yScale(d.y))
+            .curve(d3.curveMonotoneX);
+
+    let chart = {
+        "draw": function() {
+            this.axis();
+            this.link();
+            //this.circle();
+        },
+        "axis" : function() {
+            g.append("g")
+                .classed("xaxis", true)
+                .attr("transform", `translate(0, ${chart_height})`)
+                .call(axis_xAxis);
+
+            g.append("g")
+                .classed("yaxis", true)
+                .call(axis_yAxis);
+        },
+        "link": function() {
+            g.append("g")
+                .classed("link", true)
+                .attr("clip-path", "url(#clip)")
+                .datum(data)
+                .append("path")
+                .attr("d", axis_line)
+                .style("fill", "none")
+                .style("stroke", "black")
+                .style("stroke-width", 1)
+                .on("click", function() {
+                   console.log("click line");
+                });
+        },
+        "circle": function() {
+            g.append("g")
+                .classed("circle", true)
+                .selectAll("circle")
+                .data(data)
+                .join("circle")
+                .attr("cx", d=> { return axis_xScale(d.x); })
+                .attr("cy", d=> { return axis_yScale(d.y); })
+                .attr("r", 6)
+                //.style("fill", "red");
+        },
+        "tick": function() {
+            g.select("g.link")
+                .select("path")
+                .attr("d", axis_line);
+        }
+    };
+
+    let chart2 = {
+        "draw": function() {
+            this.axis();
+            this.link();
+            //this.circle();
+        },
+        "axis" : function() {
+            g2.append("g")
+                .classed("xaxis", true)
+                .attr("transform", `translate(0, ${chart2_height})`)
+                .call(axis2_xAxis);
+
+            g2.append("g")
+                .classed("yaxis", true)
+                .call(axis2_yAxis);
+        },
+        "link": function() {
+            g2.append("g")
+                .classed("link", true)
+                .datum(data)
+                .append("path")
+                .attr("d", axis2_line)
+                .style("fill", "none")
+                .style("stroke", "black")
+                .style("stroke-width", 1);
+        },
+        "circle": function() {
+            g2.append("g")
+                .classed("circle", true)
+                .selectAll("circle")
+                .data(data)
+                .join("circle")
+                .attr("cx", d=> { return axis2.xScale(d.x); })
+                .attr("cy", d=> { return axis2.yScale(d.y); })
+                .attr("r", 6)
+            //.style("fill", "red");
+        }
+    };
+
+    let svg = d3.select("#chart")
+        .append("svg")
+        .attr("width", width - 20)
+        .attr("height", height - 30)
+        .style("width", "100%")
+        .style("background-color", "#f8f9fa");
+
+    let clip = svg.append("defs").append("svg:clipPath")
+        .attr("id", "clip")
+        .append("svg:rect")
+        .attr("width", chart_width)
+        .attr("height", chart_height)
+        .attr("x", 0)
+        .attr("y", 0);
+
+    var zoom = d3.zoom()
+        .scaleExtent([1, Infinity])
+        .translateExtent([[0, 0], [chart_width, chart_height]])
+        .extent([[0, 0], [chart_width, chart_height]])
+        .on("zoom", zoomed);
+
+    svg.append("rect")
+        .classed("zoom", true)
+        .attr("width", chart_width)
+        .attr("height", chart_height)
+        .attr("transform", "translate(40, 40)")
+        .style("cursor", "move")
+        .style("fill", "none")
+        .style("pointer-events", "all")
+        .style("stroke", "red")
+        .call(zoom);
+
+    let g = svg.append("g")
+        .classed("chart", true)
+        .attr("transform", "translate(40, 40)");
+
+    let g2 = svg.append("g")
+        .classed("chart2", true)
+        .attr("transform", "translate(40, 390)");
+
+    chart.draw();
+    chart2.draw();
+
+    let brush = d3.brushX()
+        .extent([[0, 0], [chart2_width, 50]])
+        .on("start", function() {
+            var extent = d3.event.selection;
+            //console.log(extent);
+        })
+        .on("brush", brushed);//end
+
+    g2.append("g")
+        .attr("class", "brush")
+        .call(brush)
+        .call(brush.move, axis2_xScale.range())
+      .selectAll(".overlay")
+        .each(function(d) { d.type = "selection"; }) // Treat overlay interaction as move.
+        .on("mousedown", brushcentered);
+
+    function zoomed() {
+        if (d3.event.sourceEvent && d3.event.sourceEvent.type === "brush") return; // ignore zoom-by-brush
+        var t = d3.event.transform;
+
+        axis_xScale.domain(t.rescaleX(axis2_xScale).domain());
+        g.select(".xaxis").call(axis_xAxis);
+        chart.tick();
+
+        g2.select(".brush")
+            .call(brush.move, axis2_xScale.range().map(t.invertX, t));
+    }
+
+    function brushed() {
+        if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return;
+        var s = d3.event.selection || axis2_xScale.range();
+
+        axis_xScale.domain(s.map(axis2_xScale.invert, axis2_xScale));
+        g.select(".xaxis").call(axis_xAxis);
+        chart.tick();
+
+        svg.select(".zoom")
+            .call(zoom.transform, d3.zoomIdentity.scale(chart2_width / (s[1] - s[0])).translate(-s[0], 0));
+    };
+
+    function brushcentered() {
+        var dx = axis2_xScale(axis_xScale.domain()[1] - axis_xScale.domain()[0]);
+            cx = d3.mouse(this)[0],
+            x0 = cx - dx / 2,
+            x1 = cx + dx / 2;
+
+        d3.select(this.parentNode).call(brush.move, x1 > chart2_width ? [chart2_width - dx, chart2_width] : x0 < 0 ? [0, dx] : [x0, x1]);
+    }
+</script>
+
+</body>
+</html>

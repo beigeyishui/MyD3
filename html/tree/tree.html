@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>树布局</title>
+</head>
+<body>
+
+<div id="chart"></div>
+
+<script src="json.js"></script>
+<script src="../../resource/js/d3.v5.js"></script>
+<script>
+    const width = window.outerWidth - 50,
+          height = window.outerHeight - 50;
+
+window.onload = function () {
+
+    var data = json;
+
+    let svg = d3.select("#chart")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .style("width", "100%")
+        .style("background-color", "#f8f9fa");
+
+    let g = svg.append("g")
+        .attr("transform", "translate(200)");
+
+    let root = d3.stratify()
+        .id(d => d.id)
+        .parentId(d => d.parent)
+        (data);
+
+    let tree = d3.tree()
+        .size([height, 600])
+        .separation((a, b) => {
+            return a.parent == b.parent ? 1 : 2;
+        })
+        (root);
+
+    draw(root.descendants(), root.links());
+
+    // 绘制元素
+    function draw(nodes, links) {
+        let link = g.append("g")
+            .classed("links", true)
+            .attr("fill", "none")
+            .attr("stroke", "#555")
+            .attr("stroke-opacity", 0.4)
+            .attr("stroke-width", 1.5)
+            .selectAll("path")
+            .data(links)
+            .join("path")
+                .attr("d", d3.linkHorizontal()
+                    .x(d => d.y)
+                    .y(d => d.x)
+                );
+
+        let node = g.append("g")
+            .classed("nodes", true)
+            .selectAll("g")
+            .data(nodes)
+            .join("g")
+                .attr("transform", d => `translate(${d.y},${d.x})`);
+
+        node.append("circle")
+            .attr("r", 4)
+            .style("fill", "white")
+            .style("stroke", "blue")
+            .style("stroke-width", 1);
+
+        node.append("text")
+            .attr("dy", "0.31em")
+            .attr("x", d => d.children ? -6 : 6)
+            .attr("text-anchor", d => d.children ? "end" : "start")
+            .text(d => d.data.name + `(${d.id})`)
+            .clone(true).lower()
+            .attr("stroke", "#f8f9fa");
+
+    }
+};
+</script>
+</body>
+</html>

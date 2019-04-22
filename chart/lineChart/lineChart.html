@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>折线图</title>
+</head>
+<body>
+<div id="chart"></div>
+<script src="../../resource/js/d3.v5.js"></script>
+<script>
+    const width = window.innerWidth,
+        height = window.innerHeight;
+    margin = {"top": 100, "left": 40, "bottom": 40, "right": 200};
+
+    let axis = {
+        "xScale": d3.scaleLinear().domain([0, 100]).range([0, width - margin.right]),
+
+        "yScale": d3.scaleLinear().domain([0, 100]).range([height - margin.top, 0]),
+
+        "line": d3.line()
+            .x(d => axis.xScale(d.x))
+            .y(d => axis.yScale(d.y))
+            .curve(d3.curveMonotoneX),
+
+        "draw": function() {
+            this.xAxis();
+            this.yAxis();
+        },
+        "xAxis": function() {
+            let xAxis = d3.axisBottom(this.xScale)
+                .ticks(5)
+                .tickFormat(function (d) {
+                    return d + "a";
+                });
+
+            g.append("g")
+                .classed("xaxis", true)
+                .attr("transform", `translate(0,${height - margin.top})`)
+                .call(xAxis);
+        },
+        "yAxis": function() {
+            let yAxis = d3.axisLeft(this.yScale)
+                .ticks(5);
+
+            g.append("g")
+                .classed("yaxis", true)
+                .call(yAxis);
+        }
+    };
+
+    let chart = {
+        "draw": function() {
+            this.link();
+            this.circle();
+        },
+        "link": function() {
+            g.append("g")
+                .classed("link", true)
+                .datum(data)
+                .append("path")
+                .attr("d", axis.line)
+                .style("fill", "none")
+                .style("stroke", "black")
+                .style("stroke-width", 1);
+        },
+        "circle": function() {
+            g.append("g")
+                .classed("circle", true)
+                .selectAll("circle")
+                .data(data)
+                .join("circle")
+                .attr("cx", d=> {
+                    return axis.xScale(d.x);
+                })
+                .attr("cy", d=> {
+                    return axis.yScale(d.y);
+                })
+                .attr("r", 4)
+                .style("fill", "red");
+        }
+    };
+
+    let data = [
+        {"name": "a", "x": 0, "y": 0},
+        {"name": "b", "x": 20, "y": 20},
+        {"name": "c", "x": 40, "y": 40},
+        {"name": "d", "x": 60, "y": 60}
+    ];
+
+    let svg = d3.select("#chart")
+        .append("svg")
+        .attr("width", width - 20)
+        .attr("height", height - 30)
+        .style("width", "100%")
+        .style("background-color", "#f8f9fa");
+
+    let g = svg.append("g")
+        .classed("group", true)
+        .attr("transform", `translate(${margin.left}, ${margin.bottom})`);
+
+    axis.draw();
+    chart.draw();
+</script>
+
+</body>
+</html>

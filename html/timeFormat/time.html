@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script src="../../resource/js/d3.v5.js"></script>
+<script>
+    let newDate = new Date();
+    console.log(newDate);
+
+    // 常用日期格式
+    // yyyy/mm/dd    %Y/%m/%d
+    // yyyy/mm/dd hh:mm:ss  "%Y/%m/%d %H:%M:%S"
+    let format = d3.timeFormat("%Y/%m/%d"); //
+    console.log(format(newDate));
+</script>
+</body>
+</html>

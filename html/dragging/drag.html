@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>拖拽</title>
+</head>
+<body>
+
+<svg width="960" height="500"></svg>
+
+<script src="../../resource/js/d3.v5.js"></script>
+<script>
+    let svg = d3.select("svg"),
+        width = +svg.attr("width"),
+        height = +svg.attr("height");
+
+    var points = d3.range(20).map(phyllotaxis(10));
+
+    // 设置拖拽
+    let drag = d3.drag()
+        .on("start", () => {
+            d3.event.sourceEvent.stopPropagation(); // click suppressed
+            console.log("拖拽前");
+        })
+        .on("drag", function(d) {
+            console.log("拖拽中: ", d);
+            d3.select(this).attr("cx", d.x = d3.event.x).attr("cy", d.y = d3.event.y);
+        })
+        .on("end", () => {
+            console.log("拖拽后");
+        });
+
+    var g = svg.append("g");
+
+    g.selectAll("circle")
+        .data(points)
+        .enter().append("circle")
+        .attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; })
+        .attr("r", 5)
+        .on("click", function(d) {
+            if (d3.event.defaultPrevented) return; // silence other listeners
+            // 点击事件会先触发拖拽的 start、end 事件
+            console.log("点击事件:", d);
+        })
+        .call(drag);
+
+    function phyllotaxis(radius) {
+        var theta = Math.PI * (3 - Math.sqrt(5));
+        return function(i) {
+            var r = radius * Math.sqrt(i), a = theta * i;
+            return {
+                x: width / 2 + r * Math.cos(a),
+                y: height / 2 + r * Math.sin(a)
+            };
+        };
+    }
+</script>
+</body>
+</html>

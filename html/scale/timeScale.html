@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>时间比例尺</title>
+</head>
+<body>
+<script src="../../resource/js/d3.v5.js"></script>
+<script>
+    let timeScale = d3.scaleTime()
+        .domain([new Date(2019, 1, 1), new Date(2019, 12, 31)])
+        .range([0, 12]);
+
+    console.log(timeScale(new Date(2019, 3)));
+</script>
+</body>
+</html>

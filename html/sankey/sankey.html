@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>桑基图</title>
+</head>
+<body>
+
+<div id="chart"></div>
+
+<script src="energy.js"></script>
+<script src="../../resource/js/d3.v5.js"></script>
+<script src="../../resource/js/d3-sankey.min.js"></script>
+<script>
+    
+var draw = {
+    "init": function() {
+        this.link();
+        this.node();
+    },
+    "node": function () {
+        g.append("g")
+            .classed("node", true)
+            .attr("stroke", "#000")
+            .selectAll("rect")
+            .data(nodes)
+            .join("rect")
+                .attr("x", d => d.x0)
+                .attr("y", d => d.y0)
+                .attr("height", d => d.y1 - d.y0)
+                .attr("width", d => d.x1 - d.x0)
+                .style("fill", d => color(d.name))
+            .append("title")
+                .text(d => `${d.name}\n${format(d.value)}`);
+    },
+    "link": function () {
+        var edgeColor = "path";
+        const link = g.append("g")
+            .classed("link", true)
+            .attr("fill", "none")
+            .attr("stroke-opacity", 0.5)
+            .selectAll("g")
+            .data(links)
+            .join("g")
+            .style("mix-blend-mode", "multiply");
+
+        link.append("path")
+            .attr("d", d3.sankeyLinkHorizontal())
+            .attr("stroke", "red")
+            .attr("stroke-width", d => Math.max(1, d.width));
+
+        link.append("title")
+            .text(d => `${d.source.name} → ${d.target.name}\t${format(d.value)}`);
+
+        var text = svg.append("g")
+            .classed("text", true)
+            .style("font", "16px sans-serif");
+
+        text.selectAll("text.nodeText")
+            .data(nodes)
+            .join("text")
+            .classed("nodeText", true)
+            .attr("x", d => (d.x0 + d.x1) / 2)
+            .attr("y", d => (d.y1 + d.y0) / 2)
+            .attr("dy", "0.35em")
+            .attr("text-anchor", d => d.x0 < width / 2 ? "start" : "end")
+            .text(d => `${d.name}(${d.value})`);
+    }
+};
+
+var format = function(d) {
+    var f = d3.format(",.0f");
+    return `${f(d)}`;
+};
+
+var color = function (name) {
+    const c = d3.scaleOrdinal(d3.schemeCategory10);
+    return c(name.replace(/ .*/, ""));
+};
+
+const width = window.outerWidth - 100,
+    height = window.outerHeight - 100;
+
+let svg = d3.select("#chart")
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .style("width", "100%")
+    .style("background-color", "#f8f9fa");
+
+let g = svg.append("g").classed("group", true);
+    //.attr("transform", "translate(200)");
+
+let nodes = json.nodes,
+    links = json.links;
+
+let sankey = d3.sankey()
+    .nodes(nodes)
+    .links(links)
+    .nodeId(d => d.name)
+    //.nodeAlign(d3[`sankey${align[0].toUpperCase()}${align.slice(1)}`])
+    .nodeWidth(40)
+    .nodePadding(5)
+    .extent([[1, 5], [1000, 500]]);
+
+    sankey({nodes, links});
+
+nodes.forEach(d => {
+    d.x0 = d.start * 100;
+    d.x1 = d.x0 + 50;
+   console.log(d);
+});
+
+draw.init();
+
+
+</script>
+</body>
+</html>

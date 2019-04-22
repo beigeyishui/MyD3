@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>坐标轴</title>
+</head>
+<body>
+<div id="chart"></div>
+<script src="../../resource/js/d3.v5.js"></script>
+<script>
+    const width = window.innerWidth - 100,
+        height = window.innerHeight - 20;
+
+    let svg = d3.select("#chart")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .style("width", "100%")
+        .style("background-color", "#f8f9fa");
+
+    let g = svg.append("g").classed("group", true)
+        .attr("transform", "translate(50, 20)");
+
+
+    var formatNumber = d3.format(".1f");
+
+    var x = d3.scaleTime()
+        .domain([new Date("2017/1/1"), new Date("2019/1/1")])
+        .range([0, width - 200]);
+
+    var y = d3.scaleLinear()
+        .domain([0, 100])
+        .range([height - 50, 0]);
+
+    var xAxis = d3.axisBottom(x)
+        //.ticks(4);
+
+    var yAxis = d3.axisLeft(y)
+        .ticks(10);
+
+    // 添加X坐标轴
+    g.append("g")
+        .attr("transform", `translate(0, ${height - 50})`)
+        .call(xAxis);
+
+    // 添加Y坐标轴
+    g.append("g")
+        .call(yAxis);
+
+/*    g.select(".domain").remove();
+    g.selectAll(".tick:not(:first-of-type) line").attr("stroke", "#777").attr("stroke-dasharray", "2,2");
+    g.selectAll(".tick text").attr("x", 4).attr("dy", -4);*/
+    var data = [
+        {"date": new Date("2017/1/1")},
+        {"date": new Date("2017/6/31")},
+        {"date": new Date("2018/1/1")},
+        {"date": new Date("2019/1/1")}
+    ];
+    g.append("g")
+        .classed("circle", true)
+        .selectAll("circle")
+        .data(data)
+        .join("circle")
+        .attr("cx", d=> {
+            return x(d.date);
+        })
+        .attr("cy", height - 80)
+        .attr("r", 4)
+        .style("fill", "red");
+</script>
+</body>
+</html>

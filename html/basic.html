@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模板</title>
+</head>
+<body>
+模板页面(删掉)
+<div id="chart"></div>
+<script src="/MyD3/resource/js/d3.v5.js"></script>
+<script>
+    const width = window.innerWidth - 100,
+        height = window.innerHeight - 20;
+
+    let svg = d3.select("#chart")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .style("width", "100%")
+        .style("background-color", "#f8f9fa");
+
+    let g = svg.append("g").classed("group", true)
+        .attr("transform", "translate(10)");
+
+</script>
+</body>
+</html>
